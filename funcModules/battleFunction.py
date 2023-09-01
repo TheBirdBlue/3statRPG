@@ -30,7 +30,7 @@ enemyAttacksCurrent = enemyAttacksMax
 unused = '⦿'
 used = '○'
 
-def drawUI(playerBase, playerCurrent, enemyBase, eemyCurrent):
+def drawUI(playerBase, playerCurrent, enemyBase, enemyCurrent):
     # Set up common name variables for player
     playerName = playerBase[0]
     playerHPMax = playerBase[1]
@@ -43,11 +43,11 @@ def drawUI(playerBase, playerCurrent, enemyBase, eemyCurrent):
     playerSkillCurrent = playerCurrent[3]
 
     # Set up common name variables for enemy
-    enemyName = enemyStats[0]
-    enemyHPMax = enemyStats[1]
-    enemyAttacksMax = enemyStats[2]
-    enemyHPCurrent = enemyHPMax
-    enemyAttacksCurrent = enemyAttacksMax
+    enemyName = enemyBase[0]
+    enemyHPMax = enemyBase[1]
+    enemyAttacksMax = enemyBase[2]
+    enemyHPCurrent = enemyCurrent[1]
+    enemyAttacksCurrent = enemyCurrent[2]
 
     # Calculate HP percents
     playerHPPercent = int((playerHPCurrent / playerHPMax) * 15)
@@ -93,12 +93,106 @@ def drawUI(playerBase, playerCurrent, enemyBase, eemyCurrent):
         print(playerLineAction.format(skill, actionDisplay))
     print(playerLineBottom)
 
-def takeAction(action, playerItemsBase, playerItemsMax, enemyItems):
+def takeAction(action, playerItemsBase, playerItemsMax, enemyItemsBase, enemyItemsMax):
+
+    # playerItemBase; 0 - current action available. 1 - current HP
+    # playerItemsMax; 0 - current action max amount. 1 - max HP
+    # On Rest; 0 - current Strength, 1 - current Magic, 2 -  current Skill, 3 - current HP
+    # enemyItemsBase; 0 - name, 1 - current enemy HP, 2 - current enemy attacks
+    # enemyItemsMax; 0 - name, 1 - max enemy HP, 2 - max enemy attacks
+
+    def enemyAction(playerHP, enemyItemsBase, enemyItemsMax):
+        # Check if enemy has the ability to attack
+        if enemyItemsBase[2] > 0:
+            for attack in reversed(range(0, enemyItemsBase[2] + 1)):
+
+                # Check if number of attacks can do more than 90% damage on player
+                if (attack * 6) >= (playerHP * 0.90) and attack > 1:
+                    pass
+
+                # If under 90% then enemy will attack or will attack if on last attack number
+                else:
+                    damageRolled = 0
+                    for roll in range (0, attack):
+                        damageRolled += random.randrange(1, 7)
+
+                    # Roll for critical
+                    if random.randrange(0, 20) == 19:
+                        damageRolled  = int(damageRolled * 1.5)
+                        print(' The enemy landed a critical hit!')
+                        time.sleep(2)
+
+                    break
+
+            # Deal damage to the player
+            playerHP -= damageRolled
+
+            return playerHP, enemyItemsBase
+
+        else:
+            # Enemy recovers attack opportunities
+            enemyItemsBase[2] += int(enemyItemsMax * 0.66)
+            if enemyItemsBase[2] > enemyItemsMax[2]:
+                enemyItemsBase[2] = enemyItemsMax[2]
+
+            # Enemy recovers HP
+            maxDifference = enemyItemsMax[1] - enemyItemsBase[1]
+            healthRecover = int(enemyItemsMax[1] * 0.2)
+            enemyItemsBase[1] += healthRecover
+            if enemyItemsBase[1] > enemyItemsMax[1]:
+                enemyItemsBase[1] = enemyItemsMax[1]
+                print(f' {enemyItemsBase[0]} takes a rest recovering {maxDifference}')
+            else:
+                print(f' {enemyItemsBase[0]} takes a rest recovering {healthRecover}')
+
+            return playerHP, enemyItemsBase
+
     if action == 'Strength':
-        if playerItemsBase[0] == playerItemsMax[0]:
         attackLineSetup = ' You have {} rolls available [{} damage].\n How many would you like to use? '
         damageRange = str(playerItemsBase[0] * 1) + ' - ' + str(playerItemsMax[0] * 6)
         playerChoice = input(attackLineSetup.format(playerItemsBase[0], damageRange))
+
+        #try:
+        common.clear()
+        playerChoice = int(playerChoice)
+        if playerChoice <= playerItemsBase[0]:
+            damageRolled = 0
+            if playerChoice > 1:
+                for x in range(0, playerChoice):
+                    damageRolled += random.randrange(1, 7)
+
+            else:
+                damageRolled += random.randrange(1, 7)
+
+            while playerChoice >= 3:
+                damageRolled = int(damageRolled * 1.5)
+                playerChoice -= 3
+
+            # Roll for critical!
+            if random.randrange(0, 20) == 19:
+                damageRolled = int(damageRolled * 1.5)
+                print(' Landed a critical!')
+                time.sleep(2)
+
+            print(f" You hit {enemyItemsBase[0]} for {damageRolled}")
+            enemyItemsBase[1] -= damageRolled
+            time.sleep(1)
+
+            # Check if enemy has HP
+            if enemyItemsBase[1] > 0:
+                workingList = enemyAction(playerItemsBase[1], enemyItemsBase, enemyItemsMax)
+
+            else:
+                pass
+
+
+
+        else:
+            print(f" You don't have enough {action} for that.")
+
+        #except:
+        #    print(' Invalid input.')
+        #    time.sleep(2)
 
     # For the rest action
     else:
@@ -113,6 +207,8 @@ def takeAction(action, playerItemsBase, playerItemsMax, enemyItems):
                 stat += 1
                 recoveryRead.append(1)
 
+
+
         # Changes health recovery from base to percentage
         maxDifference = playerItemsMax[3] - playerItemsBase[3]
         healthRecover = int(playerItemsMax[3] * 0.2)
@@ -126,6 +222,8 @@ def takeAction(action, playerItemsBase, playerItemsMax, enemyItems):
         recoveryLine = ' Recovered {} strength, {} magic, {} skill, and {} HP.'
         print(recoveryLine.format(recoveryRead[0], recoveryRead[1], recoveryRead[2], recoveryRead[3]))
         time.sleep(2)
+
+    return playerItemsBase, playerItemsMax, enemyItemsBase, enemyItemsMax
 
 def battleStart(playerBase, playerCurrent, enemyBase):
 
@@ -147,7 +245,8 @@ def battleStart(playerBase, playerCurrent, enemyBase):
     enemyHPCurrent = enemyHPMax
     enemyAttacksCurrent = enemyAttacksMax
 
-    enemyCurrent = [enemyHPCurrent, enemyAttacksCurrent]
+    enemyCurrent = [enemyName, enemyHPCurrent, enemyAttacksCurrent]
+    enemyMax = [enemyName, enemyHPMax, enemyHPMax]
     playerStrength = [playerStrengthCurrent, playerHPCurrent]
     playerStrengthLimit = [playerStrengthMax, playerHPMax]
     playerMagic = [playerMagicCurrent, playerHPCurrent]
@@ -180,7 +279,7 @@ def battleStart(playerBase, playerCurrent, enemyBase):
                     print(" You don't have enough strength left")
                     time.sleep(2)
                 else:
-                    playerActionList = takeAction('Strength', playerStrength, playerStrengthLimit, enemyCurrent)
+                    playerActionList = takeAction('Strength', playerStrength, playerStrengthLimit, enemyCurrent, enemyMax)
                     playerStrengthCurrent = playerActionList[0]
                     playerHPCurrent = playerActionList[1]
 
@@ -189,7 +288,7 @@ def battleStart(playerBase, playerCurrent, enemyBase):
                     print(" You don't have enough magic left")
                     time.sleep(2)
                 else:
-                    playerActionList = takeAction('Magic', playerMagic, playerMagicLimit, enemyCurrent)
+                    playerActionList = takeAction('Magic', playerMagic, playerMagicLimit, enemyCurrent, enemyMax)
                     playerMagicCurrent = playerActionList[0]
                     playerHPCurrent = playerActionList[1]
 
@@ -198,12 +297,12 @@ def battleStart(playerBase, playerCurrent, enemyBase):
                     print(" You don't have enough skill left")
                     time.sleep(2)
                 else:
-                    playerActionList = takeAction('Skill', playerSkill, playerSkillLimit, enemyCurrent)
+                    playerActionList = takeAction('Skill', playerSkill, playerSkillLimit, enemyCurrent, enemyMax)
                     playerMagicCurrent = playerActionList[0]
                     playerHPCurrent = playerActionList[1]
 
             elif playerAction == 'r':
-                playerActionList = takeAction('Rest', playerRest, playerRestLimit, enemyCurrent)
+                playerActionList = takeAction('Rest', playerRest, playerRestLimit, enemyCurrent, enemyMax)
 
             else:
                 print(' Invalid action. Please try again.')
