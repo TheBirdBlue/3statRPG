@@ -1,0 +1,37 @@
+Welcome to the 3 Stat RPG!
+
+I want to explain how this 'game' works for anyone who dares wander into this mess.
+
+To get started, run 'main.py' and let it take it from there.
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+You play a character of your own naming with the goal of getting stronger and progressing through harder and larger dungeons to earn experience.
+
+Experience is your key to becoming stronger. You use it to 'level up' your Strength, Magic, or Skill along with your HP.
+
+How do these stats work? As you enter battle, you will see your HP and your stats below the enemy you are facing. You will notice that there are bubbles that correspond to each attribute of your character. You may use one attribute at a time, and may use up to as many as you have remaining. But look out for how many you use as the bubbles will empty. When all your bubbles are empty, you won't be able to use that attribute. Each bubble you use rolls 1d6 dice to determine damage and what you roll will be inflicted to your enemy.
+
+There are specials for using 3 or more bubbles at a time. Experiment to see what they do.
+
+
+ENTER A DUNGEON
+---------------
+
+Dungeons are where you will spend most of your time. Delving into these generated maps will net you experience that you can use to improve yourself and take on larger and higher rank dungeons for more rewards.
+
+
+GO TO TRAINING
+--------------
+
+After returning (or even failing to return from) a dungeon, you can head to the training grounds to expand you skills for the next run. Each skill will require a certain amount of experience to level up and will get more expensive the higher it goes. Do you want to focus on one type of attribute or spread it out evenly?
+
+
+SHOP
+----
+
+Your experience isn't just to be used on yourself. It can be traded for other goods that could give you a bit of a boost as you go. It can also be used to unlock more types of dungeons.
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
