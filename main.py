@@ -6,6 +6,13 @@ import sys
 
 sys.path.insert(0, './funcModules')
 sys.path.insert(1, './funcModules/dungeons')
+
+loadDir = os.listdir('./')
+if 'saves' not in loadDir:
+    os.makedirs('saves')
+else:
+    pass
+
 sys.path.insert(2, './saves')
 
 import common
@@ -58,6 +65,7 @@ def main():
         playerInput = int(playerInput)
         if playerInput == 1:
             playerStats = dungeon.dungeonMainMenu(playerStats)
+            saveload.savePlayer(playerStats)
         #except:
         #    print(' Invalid input.')
         #    time.sleep(2)
